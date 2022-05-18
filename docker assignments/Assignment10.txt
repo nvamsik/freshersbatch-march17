@@ -1,0 +1,46 @@
+Your fruit stand company has a Docker server set up to run three application components. There is a base-price component which serves a list of the base prices for the products sold at the fruit stand. There is also a sales component which provides a list of products that are on sale and their discount percentages. Finally, there is a total-price component that queries data from the other two services and calculates the total price for each item, including the discounts from sales.
+
+You have been asked to configure these three components by running containers on the Docker server. They need to communicate with each other using their own bridge network, which you will also need to create. A Docker server has been made available for you to use.
+
+Configure these application components on the Docker server so that the following specifications are met:
+
+1. Create a bridge network called prices-net.
+2. Run a container called base-price with the linuxacademycontent/prices-base-price:1 image. Configure this container to use the prices-net network.
+3. Run a container called sales with the linuxacademycontent/prices-sales:1 image. Configure this container to use the prices-net network.
+4. Run a container called total-price with the linuxacademycontent/prices-total-price:1 image. Configure this container to use the prices-net network. Publish this container's port 80 to port 8080 on the host.
+
+If everything is set up correctly, you should be able to access the total prices list with curl localhost:8080.
+
+Good luck!
+
+
+
+
+1. Create a bridge network called prices-net.
+
+
+docker network create --driver bridge prices-net
+
+Create the base-price container.
+Create a container for the component that serves base prices.
+
+2. docker run --name base-price -d --network prices-net linuxacademycontent/prices-base-price:1
+
+
+Create the sales container.
+Create a container for the component that serves products on sale.
+
+3. docker run --name sales -d --network prices-net linuxacademycontent/prices-sales:1
+
+
+Create the total-price container.
+Create a container for the component that serves the total prices of products.
+
+4. docker run --name total-price -d --network prices-net -p 8080:80 linuxacademycontent/prices-total-price:1
+
+
+Verify that everything is set up correctly.
+
+curl localhost:8080
+
+You should get a list of products and their final prices. The total-prices container calculates these prices by first querying the other two containers. This communication takes place over the prices-net bridge network.

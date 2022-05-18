@@ -1,0 +1,49 @@
+Your fruit stand company has some software that calculates and serves a list of products and their prices, taking into account items that are on sale and how the sales affect the total price. This software consists of three components: a base-price component which serves the base prices of fruits sold by the fruit stand, a sales component which provides a list of items that are on sale and how much each item is discounted, and a total-price component which communicates with the other two and calculates the final price for each item.
+These components have been running on a single Docker host, but as your business is expanding, it is time to upgrade to a swarm cluster for greater flexibility. Run these three application components as services in your swarm cluster, and provide them with a custom overlay network to facilitate isolated communication between them.
+
+Configure these application components on the Swarm cluster so that the following specifications are met:
+
+1. Create an overlay network called prices-overlay-net.
+2. Create a service called base-price with 3 replicas using the linuxacademycontent/prices-base-price:1 image. Configure the service to use the prices-overlay-net network.
+3. Create a service called sales with 3 replicas using the linuxacademycontent/prices-sales:1 image. Configure the service to use the prices-overlay-net network.
+4. Create a service called total-price with 2 replicas using the linuxacademycontent/prices-total-price:1 image. Configure the service to use the prices-overlay-net network. Expose this service's port 80 on port 8080.
+
+If everything is set up correctly, you should be able to access the total prices list with:
+curl localhost:8080.
+
+
+Good luck!
+
+
+
+Create the overlay network.
+Create the prices-overlay-net overlay network.
+
+docker network create --driver overlay prices-overlay-net
+
+
+
+Create the base-price service.
+
+docker service create --name base-price --network prices-overlay-net --replicas 3 linuxacademycontent/prices-base-price:1
+
+
+Create the sales service.
+
+
+docker service create --name sales --network prices-overlay-net --replicas 3 linuxacademycontent/prices-sales:1
+
+
+
+Create the total-price service.
+
+docker service create --name total-price --network prices-overlay-net --replicas 2 -p 8080:80 linuxacademycontent/prices-total-price:1
+
+
+Verify that you get the total price data.
+
+
+curl localhost:8080
+
+
+You should see a list of products and the total price for each. These prices are calculated by communicating with the base-price and sales services using the custom overlay network.
